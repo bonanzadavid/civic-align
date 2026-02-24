@@ -845,8 +845,7 @@ const Tooltip = ({ text }) => {
   );
 };
 
-// NEW: Component for interactive definitions of slider terms with alignment and
-CITATION
+// NEW: Component for interactive definitions of slider terms with alignment and CITATION
 const DefinitionLabel = ({ term, definition, source, alignment = 'center' }) => (
   <div
     className="group relative cursor-help inline-block border-b border-dotted border-slate-300 hover:border-slate-500 transition-colors">
@@ -1024,8 +1023,7 @@ const CompassControls = ({ userProfile, setUserProfile, getIdeologyLabel, compac
 // NEW: Detail View for Selected Politician
 const PoliticianDetail = ({ politician, userProfile, onBack }) => {
   const [question, setQuestion] = useState('');
-  const [questionStatus, setQuestionStatus] = useState('idle'); // idle, submitting,
-  success
+  const [questionStatus, setQuestionStatus] = useState('idle'); // idle, submitting, success
 
   const handleAskQuestion = (e) => {
     e.preventDefault();
@@ -1371,6 +1369,7 @@ const PoliticianDetail = ({ politician, userProfile, onBack }) => {
 // -----------------------------------------------------------------------------
 
 export default function App() {
+  console.log('App component is rendering');
   const [step, setStep] = useState('onboarding'); // onboarding, inputs, results
   const [loading, setLoading] = useState(false);
   const [selectedPolitician, setSelectedPolitician] = useState(null); // New state for detail view
