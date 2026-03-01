@@ -21,8 +21,6 @@ import {
   ScrollText,
   BookOpen,
   ExternalLink,
-  Key,
-  X,
   Edit,
   Check,
   FileText,
@@ -1373,11 +1371,6 @@ export default function App() {
   const [step, setStep] = useState('onboarding'); // onboarding, inputs, results
   const [loading, setLoading] = useState(false);
   const [selectedPolitician, setSelectedPolitician] = useState(null); // New state for detail view
-  const [apiKey, setApiKey] = useState('');
-  const [showApiModal, setShowApiModal] = useState(false);
-  // Track if we are in the middle of a navigation flow (e.g. Onboarding -> Inputs)
-  const [pendingStep, setPendingStep] = useState(null);
-
   // NEW: State for Input Modes selection
   const [inputModes, setInputModes] = useState({
     sliders: true,
@@ -1444,103 +1437,11 @@ export default function App() {
     return mid;
   };
 
-  // Handle modal closing and optional navigation
-  const handleModalClose = (action = 'close') => {
-    setShowApiModal(false);
-
-    // If we were waiting to navigate (e.g. from 'Start Assessment'), handle it now
-    if (pendingStep) {
-      if (action === 'proceed') {
-        setStep(pendingStep);
-      }
-      // If action is 'cancel', we just stay on the current page (Onboarding)
-      setPendingStep(null);
-    }
-  };
-
-  // API Modal Component
-  const ApiKeyModal = () => (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl border border-slate-100">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-            <Key size={20} className="text-blue-500" /> API Configuration
-          </h3>
-          <button
-            onClick={() => handleModalClose('cancel')}
-            className="text-slate-400 hover:text-slate-600 transition-colors"
-          >
-            <X size={20} />
-          </button>
-        </div>
-        <p className="text-sm text-slate-500 mb-4 leading-relaxed">
-          Enter your CivicInfo or VoteSmart API key to fetch live data. <br />
-          <span className="text-xs italic text-slate-400">(This demo currently uses mock data by default).</span>
-        </p>
-        <div className="relative mb-6">
-          <input
-            type="password"
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-            placeholder="Enter API Key..."
-            className="w-full p-3 pl-10 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all font-mono text-sm"
-          />
-          <Key size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-        </div>
-        <div className="flex justify-end gap-3">
-          {/* Conditional Buttons based on context */}
-          {pendingStep ? (
-            <>
-              <button
-                onClick={() => handleModalClose('proceed')}
-                className="px-4 py-2 text-slate-500 hover:bg-slate-100 rounded-lg text-sm font-medium transition-colors"
-              >
-                Skip for now
-              </button>
-              <button
-                onClick={() => handleModalClose('proceed')}
-                className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-bold hover:bg-black transition-colors shadow-lg shadow-slate-200"
-              >
-                Save & Continue
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => handleModalClose('close')}
-                className="px-4 py-2 text-slate-500 hover:bg-slate-100 rounded-lg text-sm font-medium transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => handleModalClose('close')}
-                className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-bold hover:bg-black transition-colors shadow-lg shadow-slate-200"
-              >
-                Save Key
-              </button>
-            </>
-          )}
-        </div>
-      </div>
-    </div>
-  );
 
   // --- RENDER: ONBOARDING ---
   if (step === 'onboarding') {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans text-slate-900 relative">
-        {showApiModal && <ApiKeyModal />}
-
-        {/* Simple Navbar for Onboarding to access settings */}
-        <div className="absolute top-0 left-0 right-0 p-6 flex justify-end">
-          <button
-            onClick={() => setShowApiModal(true)}
-            className="flex items-center gap-2 text-slate-400 hover:text-slate-600 transition-colors text-sm font-medium px-4 py-2 hover:bg-white rounded-full"
-          >
-            <Key size={16} /> API Settings
-          </button>
-        </div>
-
         <div className="max-w-4xl w-full bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100 flex flex-col md:flex-row">
           <div className="bg-slate-900 p-12 md:w-2/5 flex flex-col justify-between text-white">
             <div>
@@ -1578,10 +1479,7 @@ export default function App() {
               </div>
             </div>
             <button
-              onClick={() => {
-                setPendingStep('inputs');
-                setShowApiModal(true);
-              }}
+              onClick={() => setStep('inputs')}
               className="w-full mt-10 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] shadow-xl shadow-blue-100"
             >
               Start Assessment <ChevronRight size={20} />
@@ -1596,18 +1494,10 @@ export default function App() {
   if (step === 'inputs') {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 font-sans relative">
-        {showApiModal && <ApiKeyModal />}
-
         {/* Simple Navbar for Inputs */}
         <div className="absolute top-0 left-0 right-0 p-6 flex justify-between max-w-5xl mx-auto">
           <button onClick={() => setStep('onboarding')} className="text-slate-400 hover:text-slate-600 font-bold flex items-center gap-2">
             <ArrowLeft size={16} /> Back
-          </button>
-          <button
-            onClick={() => setShowApiModal(true)}
-            className="flex items-center gap-2 text-slate-400 hover:text-slate-600 transition-colors text-sm font-medium px-4 py-2 hover:bg-white rounded-full"
-          >
-            <Key size={16} /> API Settings
           </button>
         </div>
 
@@ -1780,9 +1670,6 @@ export default function App() {
   // --- RENDER: RESULTS (DASHBOARD LAYOUT) ---
   return (
     <div className="min-h-screen bg-slate-100 font-sans relative">
-      {showApiModal &&
-        <ApiKeyModal />}
-
       {/* NAVBAR */}
       <nav
         className="bg-white border-b border-slate-200 sticky top-0 z-30 px-6 py-4 shadow-sm">
@@ -1821,14 +1708,6 @@ export default function App() {
               <span>Voting as: <strong>{userProfile.location}
                 Resident</strong></span>
             </div>
-            <div className="h-6 w-px bg-slate-200 hidden md:block"></div>
-            <button onClick={() => setShowApiModal(true)}
-              className="flex items-center gap-2 text-slate-500
-                                                        hover:text-blue-600 transition-colors text-sm font-medium"
-            >
-              <Key size={16} />
-              <span className="hidden sm:inline">API Key</span>
-            </button>
           </div>
         </div>
       </nav>
